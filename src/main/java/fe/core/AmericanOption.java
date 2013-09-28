@@ -3,7 +3,7 @@ package fe.core;
 /**
  * User: macondo
  */
-public class AmericanOption implements Value {
+public class AmericanOption implements Value<Double> {
     private double strike;
     private double q;
     private double R_n;
@@ -16,17 +16,18 @@ public class AmericanOption implements Value {
         this.putCallMultiplier = putCallMultiplier;
     }
 
-    public double valueOf(BinomialModel model, int depth) {
+    public Double valueOf(BinomialModel model, int depth) {
         if (depth == 0) {
-            return Math.max(0, putCallMultiplier * (model.getS_0() - strike()));
+            return Math.max(0, putCallMultiplier * (model.getS_0() - strike));
         } else {
-            return Math.max(putCallMultiplier * (model.getS_0() - strike), q * model.getUpMove().value(depth - 1, this) + (1 - q) * model.getDownMove().value(depth - 1, this)) / R_n;
+            double earlyExcerciseValue = putCallMultiplier * (model.getS_0() - strike);
+            double holdValue = (q * model.getUpMove().accept(depth - 1, this) + (1 - q) * model.getDownMove().accept(depth - 1, this)) / R_n;
+
+            System.out.printf("Depth: %d; diff: %f %n", depth, holdValue - earlyExcerciseValue);
+
+            return Math.max(earlyExcerciseValue, holdValue);
         }
 
-    }
-
-    public double strike() {
-        return strike;
     }
 
     public static AmericanOption call(double strike, double q, double R_n) {

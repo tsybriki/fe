@@ -29,6 +29,12 @@ public class BinomialModel {
         });
     }
 
+    public BinomialModel(double s_0, BinomialModel upMove, BinomialModel downMove) {
+        this.s_0 = s_0;
+        this.upMove = Suppliers.ofInstance(upMove);
+        this.downMove = Suppliers.ofInstance(downMove);
+    }
+
     public double getS_0() {
         return s_0;
     }
@@ -41,7 +47,7 @@ public class BinomialModel {
         return downMove.get();
     }
 
-    public double value(int depth, Value valueFn) {
+    public <T> T accept(int depth, Value<T> valueFn) {
             return valueFn.valueOf(this, depth);
     }
 
